@@ -1,0 +1,83 @@
+Approach
+
+==========================
+Functional Requirements
+==========================
+1. Support for Cars, Motorcycles, and Trucks.
+2. Multiple levels, with each level containing parking spots.
+3. Parking spots can be:
+    * Dedicated, Reserved, or Normal.
+4. System must:
+    * Calculate parking fees.
+    * Process payments (via cash, UPI, credit/debit).
+5. Dynamic addition/removal of levels.
+
+==========================
+Classes Overview
+==========================
+1. Vehicle (Abstract Class)
+* Subclasses: Car, Motorcycle, Truck.
+* Attributes: type, license_plate.
+* Responsibility: Represents a generic vehicle with type-specific details delegated to subclasses.
+
+2. ParkingSpot
+* Attributes:
+    * spot_no: Spot identifier.
+    * parked_vehicle: Optional (holds the parked vehicle, if any).
+    * vehicle_type: Type of vehicle the spot can accommodate (e.g., CAR).
+* Responsibility:
+    * Check availability (is_available).
+    * Park/unpark vehicles.
+
+3. ParkingTicket
+* Attributes: entry_time, exit_time, spot.
+* Responsibility: Tracks vehicle’s entry/exit times and calculates parking fees.
+
+4. PaymentProcessor
+* Responsibility: Process payments for tickets.
+* Why @staticmethod: Utility method independent of instance state; avoids unnecessary instantiation.
+
+5. Level
+* Attributes: collection of ParkingSpots.
+* Responsibility:
+    * Display availability.
+    * Park/unpark vehicles at the level level.
+
+6. ParkingLot (Singleton)
+* Attributes:
+    * levels: Collection of levels.
+    * lock: Ensures thread safety.
+* Responsibility:
+    * Manage the parking system (park/unpark vehicles).
+    * Dynamically add/remove levels.
+* Why Singleton: Guarantees only one instance of ParkingLot across the system.
+
+
+===============
+Code clarification
+===============
+Vehicle
+* Why Abstract? Prevents instantiation of generic vehicles, ensuring type-specific behaviors are implemented in subclasses.
+* VehicleType Enum: Provides type safety and makes the system scalable (e.g., adding Bus, ElectricCar).
+
+ParkingSpot
+* Why hourly_rate? Enables dynamic fee calculation per spot (e.g., premium vs. regular spots).
+* Why Optional[Vehicle]? Indicates the spot can either hold a Vehicle or be None (empty). This improves type safety and clarity.
+
+ParkingTicket
+* Responsibility: Tracks parking time and associates a vehicle with a spot.
+* Why calculate_fee? Encapsulates fee calculation logic based on spot's hourly rate and parking duration.
+
+
+PaymentProcessor
+* Why @staticmethod?
+    * Independent of class state, adhering to the Single Responsibility Principle (SRP).
+    * Avoids unnecessary object creation.
+
+
+ParkingLot
+* Why Singleton?
+    * Ensures a single global instance, centralizing parking management.
+* Why Thread Safety?
+    * Prevents race conditions in multi-threaded environments when multiple threads access shared resources like levels.
+    * Lock ensures critical sections like park_vehicle and unpark_vehicle are thread-safe.
